@@ -25,9 +25,11 @@ final class MarkdownToHtml
         };
         $flushAll = static function () use ($flushParagraph, $flushList, $flushQuote): void { $flushParagraph(); $flushList(); $flushQuote(); };
 
+        // Block parsing deliberately recognizes only the small documented subset. Everything
+        // else becomes escaped paragraph text, which is the safe and readable fallback.
         foreach ($lines as $line) {
             if (trim($line) === '') { $flushAll(); continue; }
-            if (preg_match('/^(#{1,3})\s+(.+)$/', $line, $match) === 1) {
+            if (preg_match('/^(#{1,5})\s+(.+)$/', $line, $match) === 1) {
                 $flushAll();
                 $level = strlen($match[1]);
                 $html[] = sprintf('<h%d>%s</h%d>', $level, self::inline($match[2]), $level);
@@ -47,6 +49,7 @@ final class MarkdownToHtml
 
     private static function inline(string $text, bool $lineBreaks = false): string
     {
+        // Escape before adding the small set of generated tags so raw HTML stays inert.
         $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
         $escaped = preg_replace_callback('/\[([^\]]+)]\(([^)\s]+)\)/', static function (array $match): string {
             $url = html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');

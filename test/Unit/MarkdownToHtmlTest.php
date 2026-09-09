@@ -25,4 +25,12 @@ final class MarkdownToHtmlTest extends TestCase
         self::assertStringContainsString('&lt;script&gt;', $html);
         self::assertStringNotContainsString('<a ', $html);
     }
+
+    public function testConvertsFourthAndFifthLevelHeadings(): void
+    {
+        self::assertSame(
+            "<h4>Details</h4>\n<h5>Fine print</h5>",
+            MarkdownToHtml::convert("#### Details\n##### Fine print"),
+        );
+    }
 }

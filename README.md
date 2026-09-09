@@ -12,4 +12,15 @@ $text = Markdown::textFromHtml('<p>Hello <em>world</em>.</p>');
 
 HTML input is treated as untrusted. Scripts, styles, forms, iframes, and images are removed during HTML-to-Markdown or text conversion. Markdown-to-HTML escapes raw HTML and accepts links only for `http`, `https`, and `mailto` URLs.
 
-Supported syntax includes headings, paragraphs, line breaks, emphasis, strong text, inline code, links, unordered lists, and blockquotes.
+Supported syntax includes level 1–5 headings, paragraphs, line breaks, emphasis, strong text, inline code, links, unordered lists, and blockquotes.
+
+## Examples
+
+- [`examples/html-to-markdown.php`](examples/html-to-markdown.php) reads HTML elements and emits Markdown.
+- [`examples/markdown-to-html.php`](examples/markdown-to-html.php) parses the supported Markdown elements and emits HTML.
+
+Run either script after `composer install`, for example:
+
+```bash
+php examples/markdown-to-html.php
+```

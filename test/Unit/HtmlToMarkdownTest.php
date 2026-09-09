@@ -20,4 +20,12 @@ final class HtmlToMarkdownTest extends TestCase
     {
         self::assertSame('click', HtmlToMarkdown::convert('<a href="javascript:alert(1)">click</a>'));
     }
+
+    public function testConvertsFourthAndFifthLevelHeadings(): void
+    {
+        self::assertSame(
+            "#### Details\n\n##### Fine print",
+            HtmlToMarkdown::convert('<h4>Details</h4><h5>Fine print</h5>'),
+        );
+    }
 }

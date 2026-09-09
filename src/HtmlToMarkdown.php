@@ -34,6 +34,9 @@ final class HtmlToMarkdown
     private static function document(string $html): ?DOMDocument
     {
         $document = new DOMDocument();
+
+        // DOMDocument reports recoverable errors for the malformed HTML commonly found in emails.
+        // Preserve the caller's libxml error mode because it is process-global state.
         $previous = libxml_use_internal_errors(true);
         $loaded = $document->loadHTML('<?xml encoding="UTF-8"><body>' . $html . '</body>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
@@ -43,6 +46,8 @@ final class HtmlToMarkdown
 
     private static function removeUnsafeNodes(DOMDocument $document): void
     {
+        // Conversion must never execute or fetch content. Images are therefore dropped as well,
+        // which avoids retaining tracking pixels as apparently harmless Markdown image syntax.
         foreach (['script', 'style', 'form', 'iframe', 'img'] as $tag) {
             while (($node = $document->getElementsByTagName($tag)->item(0)) !== null) {
                 $node->parentNode?->removeChild($node);
@@ -59,6 +64,8 @@ final class HtmlToMarkdown
             'h1' => "\n\n# " . trim($content) . "\n\n",
             'h2' => "\n\n## " . trim($content) . "\n\n",
             'h3' => "\n\n### " . trim($content) . "\n\n",
+            'h4' => "\n\n#### " . trim($content) . "\n\n",
+            'h5' => "\n\n##### " . trim($content) . "\n\n",
             'p', 'div' => "\n\n" . trim($content) . "\n\n",
             'br' => "\n",
             'strong', 'b' => '**' . trim($content) . '**',
@@ -67,6 +74,7 @@ final class HtmlToMarkdown
             'li' => "\n- " . trim($content),
             'blockquote' => "\n\n" . self::quote(trim($content)) . "\n\n",
             'a' => self::link($node, $content),
+            // Unknown elements keep their readable children instead of leaking markup.
             default => $content,
         };
     }
